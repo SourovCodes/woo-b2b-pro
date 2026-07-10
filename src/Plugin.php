@@ -16,6 +16,7 @@ use WooB2B\Organization\UsersScreen;
 use WooB2B\Customer\BillingLock;
 use WooB2B\Customer\CheckoutGuard;
 use WooB2B\Customer\OrderGate;
+use WooB2B\Gateway\Registrar as GatewayRegistrar;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -58,5 +59,6 @@ final class Plugin {
 		( new BillingLock() )->register();
 		( new CheckoutGuard() )->register();
 		( new OrderGate() )->register();
+		( new GatewayRegistrar() )->register();
 	}
 }
