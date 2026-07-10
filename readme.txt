@@ -16,7 +16,7 @@ Woo B2B Pro turns a WooCommerce store into a B2B or B2Edu (business/education) s
 
 * **Hide prices from guests** — product prices are replaced with a customizable "Sign in to see prices" link and products cannot be purchased until the visitor logs in. Prices are also stripped from product structured data and Store API responses so nothing leaks to search engines or headless clients.
 * **Require login to browse** — every storefront page redirects logged-out visitors to the WooCommerce My Account login/registration page. After logging in the visitor lands back on the page they originally requested. The privacy policy and terms pages remain public.
-* **Organizations** — create organizations (companies or educational institutions) under WooCommerce → Organizations, give each one a billing address, and assign customers to them from the user profile screen. A customer belongs to exactly one organization.
+* **Organizations** — create organizations (companies or educational institutions) under WooCommerce → Organizations and give each one a billing address with country-aware state/district fields. Add members right on the organization screen via customer search (or from the user profile); a customer belongs to exactly one organization, so adding someone who belongs to another organization moves them.
 * **Require organization membership to order** (optional) — guests and accounts without an organization cannot add products to the cart or check out; an explanatory notice is shown instead of the purchase button.
 * **Enforced organization billing** — members of an organization always bill to the organization address:
     * My Account shows the organization billing address read-only; the edit form is blocked server-side.

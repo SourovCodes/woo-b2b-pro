@@ -8,8 +8,11 @@
 namespace WooB2B;
 
 use WooB2B\Organization\AddressMetabox;
+use WooB2B\Organization\MemberSearch;
+use WooB2B\Organization\MembersMetabox;
 use WooB2B\Organization\PostType;
 use WooB2B\Organization\UserProfile;
+use WooB2B\Organization\UsersScreen;
 use WooB2B\Customer\BillingLock;
 use WooB2B\Customer\CheckoutGuard;
 use WooB2B\Customer\OrderGate;
@@ -48,6 +51,9 @@ final class Plugin {
 		( new LoginGuard() )->register();
 		( new PostType() )->register();
 		( new AddressMetabox() )->register();
+		( new MembersMetabox() )->register();
+		( new MemberSearch() )->register();
+		( new UsersScreen() )->register();
 		( new UserProfile() )->register();
 		( new BillingLock() )->register();
 		( new CheckoutGuard() )->register();

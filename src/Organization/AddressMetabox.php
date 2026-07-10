@@ -84,13 +84,6 @@ class AddressMetabox {
 			'normal',
 			'high'
 		);
-		add_meta_box(
-			'wb2b-organization-members',
-			__( 'Members', 'woo-b2b-pro' ),
-			array( $this, 'render_members' ),
-			Organization::POST_TYPE,
-			'side'
-		);
 	}
 
 	/**
@@ -156,37 +149,6 @@ class AddressMetabox {
 		}
 
 		echo '</tbody></table>';
-	}
-
-	/**
-	 * Render the members metabox.
-	 *
-	 * @param \WP_Post $post Organization post.
-	 */
-	public function render_members( $post ): void {
-		$members = PostType::members( (int) $post->ID );
-
-		if ( ! $members ) {
-			echo '<p>' . esc_html__( 'No customers assigned yet. Assign customers from their user profile.', 'woo-b2b-pro' ) . '</p>';
-			return;
-		}
-
-		echo '<ul style="margin:0;">';
-		foreach ( $members as $user ) {
-			printf(
-				'<li><a href="%s">%s</a> <span class="description">(%s)</span></li>',
-				esc_url( get_edit_user_link( $user->ID ) ),
-				esc_html( $user->display_name ),
-				esc_html( $user->user_email )
-			);
-		}
-		echo '</ul>';
-
-		$total = PostType::member_count( (int) $post->ID );
-		if ( $total > count( $members ) ) {
-			/* translators: %d: number of members not listed. */
-			echo '<p class="description">' . esc_html( sprintf( __( '…and %d more.', 'woo-b2b-pro' ), $total - count( $members ) ) ) . '</p>';
-		}
 	}
 
 	/**

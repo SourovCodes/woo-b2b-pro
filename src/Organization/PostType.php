@@ -101,7 +101,11 @@ class PostType {
 		}
 
 		if ( 'wb2b_members' === $column ) {
-			echo esc_html( (string) self::member_count( $organization->id() ) );
+			printf(
+				'<a href="%s">%d</a>',
+				esc_url( add_query_arg( 'wb2b_org', $organization->id(), admin_url( 'users.php' ) ) ),
+				(int) self::member_count( $organization->id() )
+			);
 			return;
 		}
 
