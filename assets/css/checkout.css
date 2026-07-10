@@ -1,0 +1,37 @@
+/**
+ * Organization billing card on the checkout page.
+ *
+ * Loaded only for organization members whose billing form is replaced.
+ * Neutral grey mix so it works on light and dark themes.
+ */
+
+.wb2b-org-billing {
+	margin: 0 0 1.5em;
+	padding: 1em 1.25em;
+	border: 1px solid rgba(135, 135, 135, 0.35);
+	border-radius: 6px;
+	background: rgba(135, 135, 135, 0.08);
+}
+
+.wb2b-org-billing__name {
+	margin: 0 0 0.25em;
+	font-weight: 600;
+}
+
+.wb2b-org-billing address {
+	margin: 0;
+	font-style: normal;
+	line-height: 1.6;
+}
+
+.wb2b-org-billing__contact {
+	margin: 0.5em 0 0;
+	line-height: 1.6;
+	opacity: 0.85;
+}
+
+.wb2b-org-billing__note {
+	margin: 0.75em 0 0;
+	font-size: 0.85em;
+	opacity: 0.7;
+}

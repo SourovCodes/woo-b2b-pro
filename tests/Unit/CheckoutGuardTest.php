@@ -166,14 +166,94 @@ class CheckoutGuardTest extends TestCase {
 		$this->assertSame( array(), $order->billing );
 	}
 
-	public function test_separate_shipping_forced_for_company_members(): void {
+	public function test_shipping_to_organization_address_when_toggle_unchecked(): void {
+		// No ship_to_different_address key at all (unchecked checkbox is
+		// simply absent from the POST) — shipping must resolve to the
+		// organization address, phone included.
 		$this->stub_logged_in_company_member();
-		$this->assertTrue( ( new CheckoutGuard() )->force_separate_shipping( false ) );
+
+		$data = ( new CheckoutGuard() )->force_billing_posted_data(
+			array(
+				'shipping_first_name' => '',
+				'shipping_last_name'  => '',
+				'shipping_company'    => '',
+				'shipping_country'    => '',
+				'shipping_state'      => '',
+				'shipping_postcode'   => '',
+				'shipping_city'       => '',
+				'shipping_address_1'  => '',
+				'shipping_address_2'  => '',
+				'shipping_phone'      => '',
+			)
+		);
+
+		$this->assertSame( '1 Campus Way', $data['shipping_address_1'] );
+		$this->assertSame( 'Acme University', $data['shipping_company'] );
+		$this->assertSame( '+1 555 0100', $data['shipping_phone'] );
 	}
 
-	public function test_separate_shipping_untouched_for_others(): void {
-		$this->stub_options( array( Settings::OPTION_ORGANIZATION_BILLING => 'yes' ) );
-		Functions\when( 'is_user_logged_in' )->justReturn( false );
-		$this->assertFalse( ( new CheckoutGuard() )->force_separate_shipping( false ) );
+	public function test_package_destination_synced_to_org_when_not_shipping_separately(): void {
+		$this->stub_logged_in_company_member();
+		Functions\when( 'get_option' )->alias(
+			static fn( $name, $default = false ) => 'woocommerce_ship_to_destination' === $name ? 'billing' : ( Settings::OPTION_ORGANIZATION_BILLING === $name ? 'yes' : $default )
+		);
+		$_POST = array();
+
+		$packages = ( new CheckoutGuard() )->sync_package_destination(
+			array(
+				array(
+					'contents'    => array(),
+					'destination' => array(
+						'country'   => 'CH',
+						'state'     => '',
+						'postcode'  => '8001',
+						'city'      => 'Zurich',
+						'address'   => 'Old Session Rd',
+						'address_1' => 'Old Session Rd',
+						'address_2' => '',
+					),
+				),
+			)
+		);
+
+		$this->assertSame( 'US', $packages[0]['destination']['country'] );
+		$this->assertSame( '1 Campus Way', $packages[0]['destination']['address_1'] );
+		$this->assertSame( 'Springfield', $packages[0]['destination']['city'] );
+	}
+
+	public function test_package_destination_untouched_when_shipping_separately(): void {
+		$this->stub_logged_in_company_member();
+		$_POST['ship_to_different_address'] = '1';
+
+		$original = array( array( 'destination' => array( 'country' => 'CH', 'city' => 'Zurich' ) ) );
+		$packages = ( new CheckoutGuard() )->sync_package_destination( $original );
+
+		$this->assertSame( $original, $packages );
+		unset( $_POST['ship_to_different_address'] );
+	}
+
+	public function test_shipping_separately_parsed_from_serialized_post_data(): void {
+		$this->stub_logged_in_company_member();
+		Functions\when( 'wp_unslash' )->returnArg();
+		$_POST = array( 'post_data' => 'billing_x=1&ship_to_different_address=1&foo=bar' );
+
+		$this->assertTrue( ( new CheckoutGuard() )->shipping_separately() );
+
+		$_POST = array( 'post_data' => 'foo=bar' );
+		$this->assertFalse( ( new CheckoutGuard() )->shipping_separately() );
+		$_POST = array();
+	}
+
+	public function test_separate_shipping_input_respected_when_toggle_checked(): void {
+		$this->stub_logged_in_company_member();
+
+		$data = ( new CheckoutGuard() )->force_billing_posted_data(
+			array(
+				'ship_to_different_address' => 1,
+				'shipping_address_1'        => '9 Delivery Dock',
+			)
+		);
+
+		$this->assertSame( '9 Delivery Dock', $data['shipping_address_1'] );
 	}
 }
