@@ -13,6 +13,7 @@ $wb2b_options = array(
 	'wb2b_price_placeholder',
 	'wb2b_force_login',
 	'wb2b_organization_billing',
+	'wb2b_require_organization',
 	'wb2b_remove_data_on_uninstall',
 );
 

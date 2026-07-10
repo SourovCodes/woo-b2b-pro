@@ -21,6 +21,7 @@ class Settings {
 	public const OPTION_PRICE_PLACEHOLDER = 'wb2b_price_placeholder';
 	public const OPTION_FORCE_LOGIN       = 'wb2b_force_login';
 	public const OPTION_ORGANIZATION_BILLING   = 'wb2b_organization_billing';
+	public const OPTION_REQUIRE_ORGANIZATION   = 'wb2b_require_organization';
 	public const OPTION_REMOVE_DATA       = 'wb2b_remove_data_on_uninstall';
 
 	/**
@@ -33,6 +34,7 @@ class Settings {
 		self::OPTION_PRICE_PLACEHOLDER => '',
 		self::OPTION_FORCE_LOGIN      => 'no',
 		self::OPTION_ORGANIZATION_BILLING  => 'yes',
+		self::OPTION_REQUIRE_ORGANIZATION  => 'no',
 		self::OPTION_REMOVE_DATA      => 'no',
 	);
 
@@ -129,6 +131,13 @@ class Settings {
 				'id'      => self::OPTION_ORGANIZATION_BILLING,
 				'type'    => 'checkbox',
 				'default' => self::DEFAULTS[ self::OPTION_ORGANIZATION_BILLING ],
+			),
+			array(
+				'title'   => __( 'Require organization membership to order', 'woo-b2b-pro' ),
+				'desc'    => __( 'Only customers assigned to an organization can add products to the cart and check out. Guests and unassigned accounts see an explanatory notice instead of the purchase button.', 'woo-b2b-pro' ),
+				'id'      => self::OPTION_REQUIRE_ORGANIZATION,
+				'type'    => 'checkbox',
+				'default' => self::DEFAULTS[ self::OPTION_REQUIRE_ORGANIZATION ],
 			),
 			array(
 				'type' => 'sectionend',

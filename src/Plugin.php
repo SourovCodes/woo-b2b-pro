@@ -12,6 +12,7 @@ use WooB2B\Organization\PostType;
 use WooB2B\Organization\UserProfile;
 use WooB2B\Customer\BillingLock;
 use WooB2B\Customer\CheckoutGuard;
+use WooB2B\Customer\OrderGate;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -50,5 +51,6 @@ final class Plugin {
 		( new UserProfile() )->register();
 		( new BillingLock() )->register();
 		( new CheckoutGuard() )->register();
+		( new OrderGate() )->register();
 	}
 }

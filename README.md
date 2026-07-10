@@ -7,6 +7,7 @@ B2B / B2Edu toolkit for WooCommerce: hide prices from guests, lock the store beh
 - **Hide prices from guests** — replaces price HTML with a customizable login link, makes products non-purchasable, and strips prices from product structured data and Store API (`/wc/store/v1/products`) responses.
 - **Require login to browse** — redirects logged-out visitors to the WooCommerce My Account login/registration page and returns them to the originally requested URL after login. The My Account, privacy policy, and terms pages stay public (filterable via `wb2b_login_guard_exempt_pages`).
 - **Organizations** — a `wb2b_organization` post type (companies *or* institutions) managed under the WooCommerce admin menu, each with a WooCommerce-style billing address. Customers are assigned from their user profile; a customer belongs to exactly one organization.
+- **Require organization membership to order** *(optional)* — guests and accounts not assigned to an organization cannot add to cart or check out; they see an explanatory notice (filterable via `wb2b_order_gate_message`) instead of the purchase button. Enforced on the classic checkout and the Store API.
 - **Enforced organization billing** — members bill to the organization address everywhere:
   - `WC_Customer` billing getters live-read the organization address (no data syncing, no drift).
   - My Account shows the billing address read-only; the billing edit endpoint redirects away and saves are aborted server-side.
@@ -38,6 +39,7 @@ Copy the plugin into `wp-content/plugins/` and activate it. No build step is req
 | `wb2b_price_placeholder_html` | filter | Markup rendered in place of a hidden price. |
 | `wb2b_login_guard_exempt_pages` | filter | Page IDs reachable without login. |
 | `wb2b_login_guard_is_exempt` | filter | Final exemption decision per request. |
+| `wb2b_order_gate_message` | filter | Message shown to visitors who cannot order. |
 
 ## Development
 
