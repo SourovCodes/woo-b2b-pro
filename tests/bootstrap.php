@@ -59,6 +59,7 @@ if ( ! class_exists( 'WC_Order' ) ) {
 		public $payment_method = '';
 		public $status_updates = array();
 		public $paid           = false;
+		public $date_paid      = null;
 
 		public function get_id() {
 			return $this->id;
@@ -74,6 +75,10 @@ if ( ! class_exists( 'WC_Order' ) ) {
 
 		public function get_payment_method() {
 			return $this->payment_method;
+		}
+
+		public function get_date_paid( $context = 'view' ) {
+			return $this->date_paid;
 		}
 
 		public function update_status( $status, $note = '' ) {

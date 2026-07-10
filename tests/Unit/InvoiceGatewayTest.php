@@ -141,6 +141,38 @@ class InvoiceGatewayTest extends TestCase {
 		$this->assertTrue( $gateway->is_available() );
 	}
 
+	public function test_paid_date_is_not_stamped_for_unpaid_invoice_orders(): void {
+		$order                 = new \WC_Order();
+		$order->payment_method = InvoiceGateway::ID;
+
+		$gateway = $this->make_gateway( array() );
+
+		$this->assertSame(
+			'wb2b-invoice-unpaid',
+			$gateway->prevent_auto_paid_date( 'processing', 1, $order ),
+			'WooCommerce must never see the real status as "payment complete" for an unpaid invoice order'
+		);
+	}
+
+	public function test_paid_date_passes_through_once_actually_paid(): void {
+		$order                 = new \WC_Order();
+		$order->payment_method = InvoiceGateway::ID;
+		$order->date_paid      = 1234567890;
+
+		$gateway = $this->make_gateway( array() );
+
+		$this->assertSame( 'processing', $gateway->prevent_auto_paid_date( 'processing', 1, $order ) );
+	}
+
+	public function test_paid_date_untouched_for_other_gateways(): void {
+		$order                 = new \WC_Order();
+		$order->payment_method = 'cod';
+
+		$gateway = $this->make_gateway( array() );
+
+		$this->assertSame( 'processing', $gateway->prevent_auto_paid_date( 'processing', 1, $order ) );
+	}
+
 	public function test_registrar_adds_gateway_class(): void {
 		$registrar = new Registrar();
 

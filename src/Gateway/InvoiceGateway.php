@@ -46,6 +46,36 @@ class InvoiceGateway extends \WC_Payment_Gateway {
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
 		add_action( 'woocommerce_thankyou_' . $this->id, array( $this, 'thankyou_page' ) );
 		add_action( 'woocommerce_email_before_order_table', array( $this, 'email_instructions' ), 10, 3 );
+		add_filter( 'woocommerce_payment_complete_order_status', array( $this, 'prevent_auto_paid_date' ), 10, 3 );
+	}
+
+	/**
+	 * Stop WooCommerce from stamping "Paid on" (date_paid) just because the
+	 * order reached the processing/completed status.
+	 *
+	 * WC_Order::maybe_set_date_paid() treats reaching the filtered
+	 * "payment complete" status as payment, which is wrong here: invoice
+	 * orders are only paid after delivery. Returning a status the order
+	 * never has keeps date_paid empty. When date_paid IS already set (a
+	 * real payment_complete() call sets it before applying this filter),
+	 * the original status passes through untouched.
+	 *
+	 * @param string         $status   Status that counts as "paid".
+	 * @param int            $order_id Order ID.
+	 * @param \WC_Order|null $order    The order, when provided by core.
+	 * @return string
+	 */
+	public function prevent_auto_paid_date( $status, $order_id, $order = null ) {
+		if ( ! $order instanceof \WC_Order ) {
+			$order = wc_get_order( $order_id );
+		}
+		if ( ! $order instanceof \WC_Order || self::ID !== $order->get_payment_method() ) {
+			return $status;
+		}
+		if ( $order->get_date_paid( 'edit' ) ) {
+			return $status;
+		}
+		return 'wb2b-invoice-unpaid';
 	}
 
 	/**
