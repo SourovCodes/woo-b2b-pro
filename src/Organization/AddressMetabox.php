@@ -24,6 +24,52 @@ class AddressMetabox {
 	public function register(): void {
 		add_action( 'add_meta_boxes_' . Organization::POST_TYPE, array( $this, 'add_metaboxes' ) );
 		add_action( 'save_post_' . Organization::POST_TYPE, array( $this, 'save' ), 10, 2 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+	}
+
+	/**
+	 * Load WooCommerce's country/state script on the organization edit
+	 * screen so the state field adapts to the selected country exactly
+	 * like WooCommerce's own address forms (dropdown of states/districts
+	 * where the country has them, free text otherwise).
+	 *
+	 * @param string $hook Current admin page hook.
+	 */
+	public function enqueue_scripts( $hook ): void {
+		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
+			return;
+		}
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $screen || Organization::POST_TYPE !== $screen->post_type ) {
+			return;
+		}
+
+		wp_enqueue_style( 'woocommerce_admin_styles' );
+
+		// WooCommerce only registers wc-users on the user-edit screens;
+		// register the same script for this screen.
+		if ( ! wp_script_is( 'wc-users', 'registered' ) ) {
+			$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+			wp_register_script(
+				'wc-users',
+				WC()->plugin_url() . '/assets/js/admin/users' . $suffix . '.js',
+				array( 'jquery', 'wc-enhanced-select', 'selectWoo' ),
+				defined( 'WC_VERSION' ) ? WC_VERSION : false,
+				true
+			);
+		}
+		wp_enqueue_script( 'wc-users' );
+		wp_localize_script(
+			'wc-users',
+			'wc_users_params',
+			array(
+				'countries'              => wp_json_encode(
+					array_merge( WC()->countries->get_allowed_country_states(), WC()->countries->get_shipping_country_states() ),
+					JSON_HEX_TAG | JSON_UNESCAPED_SLASHES
+				),
+				'i18n_select_state_text' => esc_attr__( 'Select an option&hellip;', 'woocommerce' ),
+			)
+		);
 	}
 
 	/**
@@ -87,16 +133,20 @@ class AddressMetabox {
 			echo '<tr><th scope="row"><label for="' . esc_attr( $input_id ) . '">' . esc_html( $label ) . '</label></th><td>';
 
 			if ( 'country' === $type ) {
+				// The js_field-country / js_field-state classes hook into
+				// WooCommerce's users.js, which swaps the state input for a
+				// dropdown of that country's states/districts (or back to
+				// free text for countries without any) — identical to the
+				// WooCommerce checkout and user-profile behavior.
 				$countries = WC()->countries ? WC()->countries->get_countries() : array();
-				echo '<select id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_id ) . '" class="regular-text" style="max-width:25em;">';
+				echo '<select id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_id ) . '" class="js_field-country" style="width:25em;">';
 				echo '<option value="">' . esc_html__( '— Select a country —', 'woo-b2b-pro' ) . '</option>';
 				foreach ( $countries as $code => $name ) {
 					echo '<option value="' . esc_attr( $code ) . '" ' . selected( $value, $code, false ) . '>' . esc_html( $name ) . '</option>';
 				}
 				echo '</select>';
 			} elseif ( 'state' === $type ) {
-				echo '<input type="text" class="regular-text" id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_id ) . '" value="' . esc_attr( $value ) . '" />';
-				echo '<p class="description">' . esc_html__( 'Use the state/county code where applicable (e.g. CA, NY, BE).', 'woo-b2b-pro' ) . '</p>';
+				echo '<input type="text" class="regular-text js_field-state" id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_id ) . '" value="' . esc_attr( $value ) . '" />';
 			} else {
 				$input_type = 'email' === $type ? 'email' : 'text';
 				echo '<input type="' . esc_attr( $input_type ) . '" class="regular-text" id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $input_id ) . '" value="' . esc_attr( $value ) . '" />';
