@@ -1,0 +1,29 @@
+{
+    "name": "sourovcodes/woo-b2b-pro",
+    "description": "B2B / B2Edu toolkit for WooCommerce: hide prices from guests, lock the store behind login, and enforce company billing addresses for members.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5",
+        "brain/monkey": "^2.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "WooB2B\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "WooB2B\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

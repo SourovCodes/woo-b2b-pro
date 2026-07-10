@@ -1,0 +1,43 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  # The plugin itself supports PHP 7.4+; verify the syntax is compatible.
+  lint-php74:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          coverage: none
+
+      - name: Lint plugin sources
+        run: |
+          php -l woo-b2b-pro.php
+          php -l uninstall.php
+          find src -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null
+
+  # The test suite (PHPUnit 10 + Brain Monkey) needs PHP 8.1+.
+  phpunit:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['8.1', '8.2', '8.3', '8.4']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run tests
+        run: composer test
